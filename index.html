@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wôyô Pay</title>
+    <style>
+        :root {
+            --primary: #004B23;
+            --secondary: #FF6B00;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --gray: #9CA3AF;
+            --danger: #EF4444;
+            --success: #10B981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--light); color: var(--dark); padding: 15px; }
+        .container { max-width: 480px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; padding: 20px; }
+        h1, h2, h3 { color: var(--primary); margin-bottom: 15px; text-align: center; }
+        .logo-text { font-size: 24px; font-weight: bold; color: var(--secondary); text-align: center; margin-bottom: 20px; }
+        .logo-text span { color: var(--primary); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 16px; outline: none; }
+        input:focus, select:focus { border-color: var(--secondary); }
+        button { width: 100%; background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button.secondary { background-color: var(--secondary); }
+        button:active { opacity: 0.9; }
+        .card { background: linear-gradient(135deg, var(--primary), #0A5C36); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; position: relative; }
+        .balance-box { font-size: 28px; font-weight: bold; margin: 10px 0; display: flex; align-items: center; justify-content: space-between; }
+        .toggle-balance { background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; width: auto; margin: 0;}
+        .grid-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .action-btn { background: #F3F4F6; color: var(--dark); border: 1px solid #E5E7EB; padding: 15px; border-radius: 10px; text-align: center; font-weight: 600; cursor: pointer; font-size: 14px; }
+        .action-btn:hover { background: #E5E7EB; }
+        .hidden { display: none !important; }
+        .link-text { text-align: center; margin-top: 15px; color: var(--secondary); cursor: pointer; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-text">Wôyô<span>Pay</span></div>
+
+    <!-- CONNEXION -->
+    <div id="login-section">
+        <h2>Connexion</h2>
+        <div class="form-group">
+            <label>Numéro de téléphone</label>
+            <input type="tel" id="login-tel" placeholder="Ex: 073110743">
+        </div>
+        <div class="form-group">
+            <label>Code PIN</label>
+            <input type="password" id="login-pin" placeholder="****" maxlength="4">
+        </div>
+        <button onclick="login()">Se connecter</button>
+        <div class="link-text" onclick="showSection('register-section')">Créer un compte</div>
+    </div>
+
+    <!-- INSCRIPTION -->
+    <div id="register-section" class="hidden">
+        <h2>Inscription</h2>
+        <div class="form-group">
+            <label>Nom complet</label>
+            <input type="text" id="reg-nom" placeholder="Ex: Kouba Nacky">
+        </div>
+        <div class="form-group">
+            <label>Numéro de téléphone</label>
+            <input type="tel" id="reg-tel" placeholder="Ex: 073110743">
+        </div>
+        <div class="form-group">
+            <label>Type de compte</label>
+            <select id="reg-role">
+                <option value="client">Client (Non-marchand)</option>
+                <option value="marchand">Marchand (Reçoit des paiements)</option>
+                <option value="commercant">Commerçant / Agent (Débit/Dépôt)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Code PIN (4 chiffres)</label>
+            <input type="password" id="reg-pin" placeholder="****" maxlength="4">
+        </div>
+        <button onclick="register()" class="secondary">S'inscrire</button>
+        <div class="link-text" onclick="showSection('login-section')">Déjà un compte ? Se connecter</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard-section" class="hidden">
+        <div class="card">
+            <small id="user-role-badge">Mon Compte</small>
+            <h3 id="user-name" style="color: white; text-align: left; margin: 5px 0;">Nom Utilisateur</h3>
+            <div style="font-size: 12px; opacity: 0.8;" id="user-tel">00000000</div>
+            
+            <div style="margin-top: 15px;">Solde disponible</div>
+            <div class="balance-box">
+                <span id="solde-display">0 FCFA</span>
+                <button class="toggle-balance" onclick="toggleBalance()">Cacher</button>
+            </div>
+        </div>
+
+        <div id="actions-client" class="grid-actions">
+            <div class="action-btn" onclick="openModal('modal-payer')">📷 Scanner pour Payer</div>
+            <div class="action-btn" onclick="openModal('modal-recharge')">📱 Recharger Unité/Forfait</div>
+            <div class="action-btn" onclick="openModal('modal-historique')">📜 Historique</div>
+            <div class="action-btn" onclick="openModal('modal-kyc')">🛡️ Vérification KYC</div>
+        </div>
+
+        <div id="actions-marchand" class="grid-actions hidden">
+            <div class="action-btn" onclick="openModal('modal-qr')">🪪 Mon QR Code Pro</div>
+            <div class="action-btn" onclick="openModal('modal-retrait')">💸 Demander Retrait</div>
+            <div class="action-btn" onclick="openModal('modal-historique')">📜 Ventes & Encaissements</div>
+        </div>
+
+        <div id="actions-commercant" class="grid-actions hidden">
+            <div class="action-btn" onclick="openModal('modal-debiter')">💳 Débiter / Créditer Compte</div>
+            <div class="action-btn" onclick="openModal('modal-historique')">📜 Journal Caisse</div>
+        </div>
+
+        <button onclick="logout()" style="background-color: var(--danger); margin-top: 20px;">Déconnexion</button>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal-operation" class="hidden" style="margin-top: 20px; padding: 15px; background: #F3F4F6; border-radius: 8px;">
+        <h3 id="modal-title">Opération</h3>
+        <div class="form-group" id="input-target-group">
+            <label id="label-target">Cible</label>
+            <input type="text" id="op-target" placeholder="Valeur...">
+        </div>
+        <div class="form-group" id="input-montant-group">
+            <label>Montant (FCFA)</label>
+            <input type="number" id="op-montant" placeholder="Ex: 5000">
+        </div>
+        <button onclick="executeOp()" id="btn-valider-op">Valider</button>
+        <button onclick="closeModal()" style="background-color: var(--gray); margin-top: 5px;">Annuler</button>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let balanceHidden = false;
+    let currentOpType = "";
+
+    // Charger les utilisateurs stockés ou initialiser une base vide
+    function getUsers() {
+        return JSON.parse(localStorage.getItem('woyopay_users')) || [];
+    }
+
+    function saveUsers(users) {
+        localStorage.setItem('woyopay_users', JSON.stringify(users));
+    }
+
+    function showSection(sectionId) {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('register-section').classList.add('hidden');
+        document.getElementById('dashboard-section').classList.add('hidden');
+        document.getElementById(sectionId).classList.remove('hidden');
+    }
+
+    function register() {
+        const nom = document.getElementById('reg-nom').value.trim();
+        const telephone = document.getElementById('reg-tel').value.trim();
+        const role = document.getElementById('reg-role').value;
+        const pin = document.getElementById('reg-pin').value.trim();
+
+        if(!nom || !telephone || !pin) {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        let users = getUsers();
+        let exists = users.find(u => u.telephone === telephone);
+        if(exists) {
+            alert("Ce numéro de téléphone est déjà enregistré.");
+            return;
+        }
+
+        const newUser = {
+            user_id: "USR_" + Date.now(),
+            nom: nom,
+            telephone: telephone,
+            role: role,
+            pin: pin,
+            solde: 10000, // Solde de départ test 10,000 FCFA offert
+            qr_token: "QR_" + telephone
+        };
+
+        users.push(newUser);
+        saveUsers(users);
+
+        alert("Inscription réussie ! Connectez-vous.");
+        showSection('login-section');
+    }
+
+    function login() {
+        const telephone = document.getElementById('login-tel').value.trim();
+        const pin = document.getElementById('login-pin').value.trim();
+
+        if(!telephone || !pin) {
+            alert("Veuillez renseigner votre numéro et votre PIN.");
+            return;
+        }
+
+        let users = getUsers();
+        let user = users.find(u => u.telephone === telephone && u.pin === pin);
+
+        if(user) {
+            currentUser = user;
+            updateDashboard();
+            showSection('dashboard-section');
+        } else {
+            alert("Numéro ou code PIN incorrect.");
+        }
+    }
+
+    function updateDashboard() {
+        document.getElementById('user-name').innerText = currentUser.nom;
+        document.getElementById('user-tel').innerText = currentUser.telephone;
+        document.getElementById('user-role-badge').innerText = `Rôle : ${currentUser.role.toUpperCase()}`;
+        document.getElementById('solde-display').innerText = currentUser.solde.toLocaleString() + " FCFA";
+
+        document.getElementById('actions-client').classList.add('hidden');
+        document.getElementById('actions-marchand').classList.add('hidden');
+        document.getElementById('actions-commercant').classList.add('hidden');
+
+        if(currentUser.role === 'client') {
+            document.getElementById('actions-client').classList.remove('hidden');
+        } else if(currentUser.role === 'marchand') {
+            document.getElementById('actions-marchand').classList.remove('hidden');
+        } else if(currentUser.role === 'commercant') {
+            document.getElementById('actions-commercant').classList.remove('hidden');
+        }
+    }
+
+    function toggleBalance() {
+        balanceHidden = !balanceHidden;
+        const display = document.getElementById('solde-display');
+        if(balanceHidden) {
+            display.innerText = "••••••";
+            event.target.innerText = "Afficher";
+        } else {
+            display.innerText = currentUser.solde.toLocaleString() + " FCFA";
+            event.target.innerText = "Cacher";
+        }
+    }
+
+    function openModal(type) {
+        const modal = document.getElementById('modal-operation');
+        modal.classList.remove('hidden');
+        currentOpType = type;
+        
+        const title = document.getElementById('modal-title');
+        const targetGroup = document.getElementById('input-target-group');
+        const montantGroup = document.getElementById('input-montant-group');
+
+        if(type === 'modal-payer') {
+            title.innerText = "Payer un Marchand";
+            targetGroup.classList.remove('hidden');
+            montantGroup.classList.remove('hidden');
+            document.getElementById('label-target').innerText = "Numéro du Marchand";
+        } else if(type === 'modal-recharge') {
+            title.innerText = "Recharge Unité / Forfait";
+            targetGroup.classList.remove('hidden');
+            montantGroup.classList.remove('hidden');
+            document.getElementById('label-target').innerText = "Numéro à recharger (MTN/Moov/Orange)";
+        } else if(type === 'modal-debiter') {
+            title.innerText = "Débit / Dépôt Client (Commerçant)";
+            targetGroup.classList.remove('hidden');
+            montantGroup.classList.remove('hidden');
+            document.getElementById('label-target').innerText = "Numéro du Compte Client";
+        } else if(type === 'modal-retrait') {
+            title.innerText = "Demande de Retrait";
+            targetGroup.classList.add('hidden');
+            montantGroup.classList.remove('hidden');
+        } else if(type === 'modal-qr') {
+            title.innerText = "Votre QR Code Pro";
+            targetGroup.classList.add('hidden');
+            montantGroup.classList.add('hidden');
+            alert("Votre QR Token unique est : " + currentUser.qr_token);
+            modal.classList.add('hidden');
+        } else if(type === 'modal-historique') {
+            alert("Historique des transactions enregistré localement.");
+            modal.classList.add('hidden');
+        } else if(type === 'modal-kyc') {
+            alert("Module KYC : Vos documents sont prêts pour soumission.");
+            modal.classList.add('hidden');
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('modal-operation').classList.add('hidden');
+    }
+
+    function executeOp() {
+        const targetTel = document.getElementById('op-target').value.trim();
+        const montant = parseFloat(document.getElementById('op-montant').value);
+
+        if(isNaN(montant) || montant <= 0) {
+            alert("Veuillez entrer un montant valide.");
+            return;
+        }
+
+        let users = getUsers();
+        let userIndex = users.findIndex(u => u.user_id === currentUser.user_id);
+
+        if(currentOpType === 'modal-retrait') {
+            if(currentUser.solde < montant) {
+                alert("Solde insuffisant.");
+                return;
+            }
+            currentUser.solde -= montant;
+            users[userIndex].solde = currentUser.solde;
+            saveUsers(users);
+            alert("Retrait effectué avec succès !");
+            updateDashboard();
+            closeModal();
+            return;
+        }
+
+        if(!targetTel) {
+            alert("Veuillez renseigner la cible.");
+            return;
+        }
+
+        let targetUserIndex = users.findIndex(u => u.telephone === targetTel);
+        if(targetUserIndex === -1 && currentOpType !== 'modal-recharge') {
+            alert("Compte cible introuvable.");
+            return;
+        }
+
+        if(currentUser.solde < montant && currentOpType !== 'modal-debiter') {
+            alert("Solde insuffisant.");
+            return;
+        }
+
+        if(currentOpType === 'modal-payer' || currentOpType === 'modal-recharge') {
+            currentUser.solde -= montant;
+            users[userIndex].solde = currentUser.solde;
+            if(targetUserIndex !== -1) {
+                users[targetUserIndex].solde += montant;
+            }
+        } else if(currentOpType === 'modal-debiter') {
+            // Le commerçant encaisse ou crédite
+            currentUser.solde += montant;
+            users[userIndex].solde = currentUser.solde;
+            if(targetUserIndex !== -1) {
+                users[targetUserIndex].solde -= montant; // Débit du client
+            }
+        }
+
+        saveUsers(users);
+        alert("Opération réalisée avec succès !");
+        updateDashboard();
+        closeModal();
+    }
+
+    function logout() {
+        currentUser = null;
+        showSection('login-section');
+    }
+</script>
+
+</body>
+</html>
