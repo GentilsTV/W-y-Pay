@@ -18,8 +18,13 @@
         body { background-color: var(--light); color: var(--dark); padding: 15px; }
         .container { max-width: 480px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; padding: 20px; }
         h1, h2, h3 { color: var(--primary); margin-bottom: 15px; text-align: center; }
+        
+        /* Style du Logo */
+        .logo-container { text-align: center; margin-bottom: 15px; }
+        .app-logo { width: 80px; height: 80px; object-fit: contain; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .logo-text { font-size: 24px; font-weight: bold; color: var(--secondary); text-align: center; margin-bottom: 20px; }
         .logo-text span { color: var(--primary); }
+
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
         input, select { width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 16px; outline: none; }
@@ -40,6 +45,10 @@
 <body>
 
 <div class="container">
+    <!-- LOGO INTÉGRÉ -->
+    <div class="logo-container">
+        <img src="https://lh3.googleusercontent.com/d/172yjH55F6JkLLLC_u_6S_E1R1rRyu5LL" alt="Wôyô Pay Logo" class="app-logo">
+    </div>
     <div class="logo-text">Wôyô<span>Pay</span></div>
 
     <!-- CONNEXION -->
@@ -112,7 +121,7 @@
         </div>
 
         <div id="actions-commercant" class="grid-actions hidden">
-            <div class="action-btn" onclick="openModal('modal-debiter')">💳 Débiter / Créditer Compte</div>
+            <div class="action-btn" onclick="openModal('modal-debiter')">💳 Débit / Créditer Compte</div>
             <div class="action-btn" onclick="openModal('modal-historique')">📜 Journal Caisse</div>
         </div>
 
@@ -140,7 +149,6 @@
     let balanceHidden = false;
     let currentOpType = "";
 
-    // Charger les utilisateurs stockés ou initialiser une base vide
     function getUsers() {
         return JSON.parse(localStorage.getItem('woyopay_users')) || [];
     }
@@ -180,7 +188,7 @@
             telephone: telephone,
             role: role,
             pin: pin,
-            solde: 10000, // Solde de départ test 10,000 FCFA offert
+            solde: 10000,
             qr_token: "QR_" + telephone
         };
 
@@ -339,11 +347,10 @@
                 users[targetUserIndex].solde += montant;
             }
         } else if(currentOpType === 'modal-debiter') {
-            // Le commerçant encaisse ou crédite
             currentUser.solde += montant;
             users[userIndex].solde = currentUser.solde;
             if(targetUserIndex !== -1) {
-                users[targetUserIndex].solde -= montant; // Débit du client
+                users[targetUserIndex].solde -= montant;
             }
         }
 
